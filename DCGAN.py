@@ -76,7 +76,10 @@ loss_G = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=D_gene, l
 train_D = tf.train.AdamOptimizer(0.001).minimize(loss_D)
 train_G = tf.train.AdamOptimizer(0.001).minimize(loss_G)
 
-tpu_computation = tpu.rewrite(G, images)
+def calc(i):
+    return G * i
+    
+tpu_computation = tpu.rewrite(calc, images)
 
 tpu_grpc_url = TPUClusterResolver(
     tpu=[os.environ['TPU_NAME']]).get_master()
