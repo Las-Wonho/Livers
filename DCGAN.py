@@ -1,5 +1,6 @@
 import tensorflow as tf
 import numpy as np
+import os
 from tensorflow.contrib import tpu
 from tensorflow.contrib.cluster_resolver import TPUClusterResolver
 
