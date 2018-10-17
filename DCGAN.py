@@ -79,7 +79,7 @@ train_G = tf.train.AdamOptimizer(0.001).minimize(loss_G)
 def calc(i):
     return i.shape
 
-tpu_computation = tpu.rewrite(calc, images)
+tpu_computation = tpu.rewrite(calc, [images])
 
 tpu_grpc_url = TPUClusterResolver(
     tpu=[os.environ['TPU_NAME']]).get_master()
