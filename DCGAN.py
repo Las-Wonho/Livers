@@ -1,5 +1,7 @@
 import tensorflow as tf
 import numpy as np
+from tensorflow.contrib import tpu
+from tensorflow.contrib.cluster_resolver import TPUClusterResolver
 
 from keras.preprocessing.image import load_img, img_to_array
 images = []
