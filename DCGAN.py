@@ -1,6 +1,7 @@
 import tensorflow as tf
 import numpy as np
 import os
+import scipy.misc
 from tensorflow.contrib import tpu
 from tensorflow.contrib.cluster_resolver import TPUClusterResolver
 
@@ -81,7 +82,7 @@ train_G = tf.train.AdamOptimizer(0.001).minimize(loss_G)
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
-for i in range(10):
+for i in range(1000000):
     noise = get_noise(1,100)
     _, varsD=sess.run([train_D, loss_D], 
                   feed_dict={
@@ -91,4 +92,14 @@ for i in range(10):
                   feed_dict={
                       X:np.array(images),
                       Z: noise})
+    if(i%100==0):
+        nn = get_noise(3,100)
+        im = sess.run(G,feed_dict={Z:nn})
+        scipy.misc.imsave('./'+str(i)+'-0.jpg',im[0])
+        scipy.misc.imsave('./'+str(i)+'-1.jpg',im[1])
+        scipy.misc.imsave('./'+str(i)+'-2.jpg',im[2])
     print(str(i)+"   D : "+str(varsD)+"\t G : "+str(varsG))
+
+noise = get_noise(1,100)
+i = sess.run(G,feed_dict={Z:noise})
+
