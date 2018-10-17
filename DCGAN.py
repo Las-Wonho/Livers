@@ -65,6 +65,7 @@ def discriminaster(inputs):
     return out
 
 G = generate(Z)
+
 D_real = discriminaster(X)
 D_gene = discriminaster(G)
 
@@ -77,17 +78,17 @@ loss_G = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=D_gene, l
 train_D = tf.train.AdamOptimizer(0.001).minimize(loss_D)
 train_G = tf.train.AdamOptimizer(0.001).minimize(loss_G)
 
-def calc(i):
-    return i.shape
+sess = tf.Session()
+sess.run(tf.global_variables_initializer())
 
-tpu_computation = tpu.rewrite(calc, [np.array(images)])
-
-tpu_grpc_url = TPUClusterResolver(
-    tpu=[os.environ['TPU_NAME']]).get_master()
-
-with tf.Session(tpu_grpc_url) as sess:
-  sess.run(tpu.initialize_system())
-  sess.run(tf.global_variables_initializer())
-  output = sess.run(tpu_computation)
-  print(output)
-  sess.run(tpu.shutdown_system())
+for i in range(10):
+    noise = get_noise(1,100)
+    _, varsD=sess.run([train_D, loss_D], 
+                  feed_dict={
+                      X:np.array(images),
+                      Z: noise})
+    _, varsG=sess.run([train_G, loss_G], 
+                  feed_dict={
+                      X:np.array(images),
+                      Z: noise})
+    print(str(i)+"   D : "+str(varsD)+"\t G : "+str(varsG))
