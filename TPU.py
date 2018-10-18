@@ -2,9 +2,6 @@ import tensorflow as tf
 import numpy as np
 import os
 import scipy.misc
-from tensorflow.contrib import tpu
-from tensorflow.contrib.cluster_resolver import TPUClusterResolver
-
 from keras.preprocessing.image import load_img, img_to_array
 images = []
 for i in range(70):
@@ -13,18 +10,16 @@ for i in range(70):
     image.shape
     image = image / 256
     images.append(image)
-    images.append(image)
-    images.append(image)
 
 def get_noise(batch_size, n_noise):
     return np.random.uniform(-1., 1., size = [batch_size, n_noise])
 
 X = tf.placeholder(tf.float32, [None, 64,64,3])
 Y = tf.placeholder(tf.float32, [None, 1])
-Z = tf.placeholder(tf.float32, [None, 100])
+Z = tf.placeholder(tf.float32, [None, 2])
 
 def generate(Z):
-    w1 = tf.Variable(tf.random_normal([100, 16384]))
+    w1 = tf.Variable(tf.random_normal([2, 16384]))
     h1 = tf.matmul(Z,w1)
     re = tf.reshape(h1,[-1,4,4,1024])
     re = tf.layers.batch_normalization(re)
@@ -81,9 +76,9 @@ train_G = tf.train.AdamOptimizer(0.001).minimize(loss_G)
 
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
-
-for i in range(10):
-    noise = get_noise(1,100)
+scipy.misc.imsave('./ww.jpg',images[3])
+for i in range(10000000):
+    noise = get_noise(1,2)
     _, varsD=sess.run([train_D, loss_D], 
                   feed_dict={
                       X:np.array(images),
@@ -93,7 +88,7 @@ for i in range(10):
                       X:np.array(images),
                       Z: noise})
     if(i%100==0):
-        nn = get_noise(3,100)
+        nn = get_noise(3,2)
         im = sess.run(G,feed_dict={Z:nn})
         scipy.misc.imsave('./'+str(i)+'-0.jpg',im[0])
         scipy.misc.imsave('./'+str(i)+'-1.jpg',im[1])

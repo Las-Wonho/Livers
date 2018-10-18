@@ -14,7 +14,6 @@ for i in range(70):
     image = image / 256
     images.append(image)
     images.append(image)
-    images.append(image)
 
 def get_noise(batch_size, n_noise):
     return np.random.uniform(-1., 1., size = [batch_size, n_noise])
@@ -33,10 +32,10 @@ def generate(Z):
     
     conv_h1 = tf.nn.relu(conv_h1)
 
-    conv_h2 = tf.layers.conv2d_transpose(conv_h1 ,256, 4, 2, padding='same')
+    conv_h2 = tf.layers.conv2d_transpose(conv_h1 ,256, 3, 2, padding='same')
     conv_h2 = tf.nn.relu(conv_h2)
 
-    conv_h3 = tf.layers.conv2d_transpose(conv_h2 ,128, 4, 2, padding='same')
+    conv_h3 = tf.layers.conv2d_transpose(conv_h2 ,128, 3, 2, padding='same')
     conv_h3 = tf.nn.relu(conv_h3)
 
     conv_h5 = tf.layers.conv2d_transpose(conv_h3 ,3, 4, 2, padding='same')
@@ -61,7 +60,6 @@ def discriminaster(inputs):
     H4 = tf.nn.relu(H4)
     
     out = tf.reshape(H4,[-1,16384])
-    out = tf.layers.dense(out,256)
     out = tf.layers.dense(out,1)
     return out
 
@@ -76,8 +74,8 @@ loss_D_gene = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=D_ge
 loss_D = loss_D_gene + loss_D_real
 loss_G = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=D_gene, labels=tf.ones_like(D_gene)))
 
-train_D = tf.train.AdamOptimizer(0.001).minimize(loss_D)
-train_G = tf.train.AdamOptimizer(0.001).minimize(loss_G)
+train_D = tf.train.GradientDescentOptimizer(0.01).minimize(loss_D)
+train_G = tf.train.GradientDescentOptimizer(0.01).minimize(loss_G)
 
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
@@ -95,9 +93,9 @@ for i in range(1000000):
     if(i%100==0):
         nn = get_noise(3,100)
         im = sess.run(G,feed_dict={Z:nn})
-        scipy.misc.imsave('./'+str(i)+'-0.jpg',im[0])
-        scipy.misc.imsave('./'+str(i)+'-1.jpg',im[1])
-        scipy.misc.imsave('./'+str(i)+'-2.jpg',im[2])
+        scipy.misc.imsave('./tanh'+str(i)+'-0.jpg',im[0])
+        scipy.misc.imsave('./tanh'+str(i)+'-1.jpg',im[1])
+        scipy.misc.imsave('./tanh'+str(i)+'-2.jpg',im[2])
     print(str(i)+"   D : "+str(varsD)+"\t G : "+str(varsG))
 
 noise = get_noise(1,100)
