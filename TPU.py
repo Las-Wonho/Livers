@@ -4,7 +4,7 @@ import os
 import scipy.misc
 from keras.preprocessing.image import load_img, img_to_array
 images = []
-for i in range(70):
+for i in range(320):
     image = load_img('./DATA/'+str(i)+'.jpeg',target_size=(64,64))
     image = img_to_array(image)
     image.shape
@@ -71,8 +71,8 @@ loss_D_gene = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=D_ge
 loss_D = loss_D_gene + loss_D_real
 loss_G = tf.reduce_mean(tf.nn.sigmoid_cross_entropy_with_logits(logits=D_gene, labels=tf.ones_like(D_gene)))
 
-train_D = tf.train.AdamOptimizer(0.001).minimize(loss_D)
-train_G = tf.train.AdamOptimizer(0.001).minimize(loss_G)
+train_D = tf.train.AdadeltaOptimizer(0.001).minimize(loss_D)
+train_G = tf.train.AdadeltaOptimizer(0.001).minimize(loss_G)
 
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
@@ -90,8 +90,8 @@ for i in range(10000000):
     if(i%100==0):
         nn = get_noise(3,2)
         im = sess.run(G,feed_dict={Z:nn})
-        scipy.misc.imsave('./'+str(i)+'-0.jpg',im[0])
-        scipy.misc.imsave('./'+str(i)+'-1.jpg',im[1])
-        scipy.misc.imsave('./'+str(i)+'-2.jpg',im[2])
+        scipy.misc.imsave('./b'+str(i)+'-0.jpg',im[0])
+        scipy.misc.imsave('./b'+str(i)+'-1.jpg',im[1])
+        scipy.misc.imsave('./b'+str(i)+'-2.jpg',im[2])
 
     print(str(i)+"   D : "+str(varsD)+"\t G : "+str(varsG))
